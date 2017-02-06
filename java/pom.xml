@@ -68,7 +68,12 @@
   </mailingLists>
 
   <repositories>
-
+    <repository>
+     <id>snapshots-repo</id>
+     <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+     <releases><enabled>false</enabled></releases>
+     <snapshots><enabled>true</enabled></snapshots>
+   </repository>
   </repositories>
 
   <issueManagement>
@@ -394,7 +399,7 @@
     <dependency>
       <groupId>io.netty</groupId>
       <artifactId>netty-handler</artifactId>
-      <version>4.0.41.Final</version>
+      <version>4.0.45.Final-SNAPSHOT</version>
     </dependency>
 
     <dependency>

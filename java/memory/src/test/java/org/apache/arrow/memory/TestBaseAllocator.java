@@ -33,6 +33,7 @@ public class TestBaseAllocator {
   // private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TestBaseAllocator.class);
 
   private final static int MAX_ALLOCATION = 8 * 1024;
+  private static final long CACHE_ALIGN = 64;
 
 /*
   // ---------------------------------------- DEBUG -----------------------------------
@@ -650,6 +651,28 @@ public class TestBaseAllocator {
       frag2.close();
       frag3.close();
 
+    }
+  }
+
+  @Test
+  public void testMemoryOffset() {
+    try (final BufferAllocator allocator = new RootAllocator(10000)) {
+      int[] reqCapacities = { 0, 5, 15, 67, 130, 510, 1024, 1023, 1025 };
+      int[] expectedResult = { 0, 8, 16, 128, 256, 512, 1024, 1024, 2048 };
+
+      for (int i = 0; i < reqCapacities.length; i++) {
+        ArrowBuf buf = allocator.buffer(reqCapacities[i]);
+        if (buf.capacity() > 0) {
+          long memory = buf.memoryAddress();
+          int delta = (int) (memory % CACHE_ALIGN);
+          assertTrue("memory is not align to 64-bytes", delta == 0);
+          assertEquals(expectedResult[i], buf.capacity());
+          int size = buf.capacity();
+          delta = (int) (size % CACHE_ALIGN);
+          assertTrue("size is not align to 64-bytes ", delta == 0);
+        }
+        buf.release();
+      }
     }
   }
 
